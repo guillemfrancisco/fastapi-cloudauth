@@ -33,7 +33,12 @@ class BaseTokenVerifier:
 
     def get_publickey(self, http_auth: HTTPAuthorizationCredentials):
         token = http_auth.credentials
-        header = jwt.get_unverified_header(token)
+        try:
+            header = jwt.get_unverified_header(token)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not authenticated"
+            )
         kid = header.get("kid")
         if not kid:
             if self.auto_error:
@@ -150,4 +155,3 @@ class TokenUserInfoGetter(BaseTokenVerifier):
                 )
             else:
                 return None
-
